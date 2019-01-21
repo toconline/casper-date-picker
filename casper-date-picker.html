@@ -1,0 +1,95 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../vaadin-date-picker/vaadin-date-picker-light.html">
+
+<dom-module id="casper-date-picker">
+  <template>
+    <vaadin-date-picker-light
+      attr-for-value="value"
+      value="{{filters.start_date}}">
+      <paper-input label="[[inputPlaceholder]]">
+        <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
+      </paper-input>
+    </vaadin-date-picker-light>
+  </template>
+  <script>
+    class CasperDatePicker extends Polymer.Element {
+      static get is() {
+        return 'casper-date-picker';
+      }
+
+      static get properties() {
+        return {
+          minimumDate: {
+            type: String
+          },
+          maximumDate: {
+            type: String
+          },
+          value: {
+            type: String
+          },
+
+        };
+      }
+
+      ready () {
+        super.ready();
+
+        this._datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
+      }
+
+      connectedCallback () {
+        super.connectedCallback();
+
+        if (this.value) this._datePicker.value = this.value;
+        if (this.minimumDate) this._datePicker.min = this.minimumDate;
+        if (this.maximumDate) this._datePicker.max = this.maximumDate;
+
+        this._setupDatePicker();
+      }
+
+      _setupDatePicker () {
+        // Format the date in DD-MM-YYYY.
+        this._datepicker.set('i18n.formatDate', date => {
+          const formattedDay = this._formatDateValue(date.day);
+          const formattedMonth = this._formatDateValue(date.month + 1);
+
+          return `${formattedDay}-${formattedMonth}-${date.year}`;
+        });
+
+        this._datepicker.set('i18n.parseDate', date => {
+          const [day, month, year] = date.split('-');
+
+          return {
+            day: parseInt(day),
+            month: parseInt(month) - 1,
+            year: parseInt(year)
+          };
+        });
+
+        // Translate the month names.
+        this._datepicker.set('i18n.monthNames', [
+          'Janeiro', 'Fevereiro', 'Março', 'Abril',
+          'Maio', 'Junho', 'Julho', 'Agosto',
+          'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ]);
+
+        // Translate the week days.
+        this._datepicker.set('i18n.weekdays', [
+          'Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'
+        ]);
+
+        // Translate the short week days.
+        this._datepicker.set('i18n.weekdaysShort', [
+          'Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'
+        ]);
+
+        // Translate the button titles in the bottom.
+        this._datepicker.set('i18n.today', 'Hoje');
+        this._datepicker.set('i18n.cancel', 'Cancelar');
+      }
+    }
+
+    window.customElements.define(CasperDatePicker.is, CasperDatePicker);
+  </script>
+</dom-module>
