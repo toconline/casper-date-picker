@@ -5,7 +5,9 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
     "vaadin-date-picker": "^3.3.2",
-    "paper-input": "^3.0.1"
+    "paper-input": "^3.0.1",
+    "moment": "^2.24.0",
+    "vaadin-material-styles": "vaadin/vaadin-material-theme#^1.2.0"
   },
   "devDependencies": {
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
