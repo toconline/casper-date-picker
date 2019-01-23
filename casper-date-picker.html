@@ -1,17 +1,21 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../vaadin-material-theme/vaadin-date-picker.html">
-<link rel="import" href="../vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../vaadin-material-theme/color.html">
+<link rel="import" href="../vaadin-material-theme/typography.html">
+<link rel="import" href="../vaadin-date-picker/theme/material/vaadin-date-picker-light.html">
 
 <dom-module id="casper-date-picker">
   <template>
-    <vaadin-date-picker
-      id="datePicker"
+    <vaadin-date-picker-light
       value="{{value}}"
       min="[[minimumDate]]"
       max="[[maximumDate]]"
+      opened="{{_isPickerOverlayOpened}}"
       attr-for-value="value">
-    </vaadin-date-picker>
+      <paper-input tabindex="1" label="[[inputPlaceholder]]">
+        <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
+      </paper-input>
+    </vaadin-date-picker-light>
   </template>
   <script>
 
@@ -22,23 +26,20 @@
 
       static get properties() {
         return {
+          minimumDate: String,
+          maximumDate: String,
           format: {
             type: String,
             value: 'DDMMYYYY'
-          },
-          minimumDate: {
-            type: String,
-          },
-          maximumDate: {
-            type: String,
           },
           value: {
             type: String,
             notify: true,
           },
-          _isInputFocused: {
+          _isPickerOverlayOpened: {
             type: Boolean,
-            value: false
+            value: false,
+            observer: '_isPickerOverlayOpenedChanged'
           }
         };
       }
@@ -46,25 +47,28 @@
       ready () {
         super.ready();
 
+        this._datePickerInput = this.shadowRoot.querySelector('paper-input');
+        this._datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
+
         this._setupDatePicker();
       }
 
       _setupDatePicker () {
         // Function to format a date into a String and the other way around.
-        this.$.datePicker.set('i18n.parseDate', date => this._parseDate(date));
-        this.$.datePicker.set('i18n.formatDate', date => this._formatDate(date));
+        this._datePicker.set('i18n.parseDate', date => this._parseDate(date));
+        this._datePicker.set('i18n.formatDate', date => this._formatDate(date));
 
         // Date picker translations.
-        this.$.datePicker.set('i18n.monthNames', [
+        this._datePicker.set('i18n.monthNames', [
           'Janeiro', 'Fevereiro', 'Março', 'Abril',
           'Maio', 'Junho', 'Julho', 'Agosto',
           'Setembro', 'Outubro', 'Novembro', 'Dezembro'
         ]);
 
-        this.$.datePicker.set('i18n.today', 'Hoje');
-        this.$.datePicker.set('i18n.cancel', 'Cancelar');
-        this.$.datePicker.set('i18n.weekdaysShort', ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']);
-        this.$.datePicker.set('i18n.weekdays', ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']);
+        this._datePicker.set('i18n.today', 'Hoje');
+        this._datePicker.set('i18n.cancel', 'Cancelar');
+        this._datePicker.set('i18n.weekdaysShort', ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']);
+        this._datePicker.set('i18n.weekdays', ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']);
       }
 
       _formatDate (date) {
@@ -79,6 +83,17 @@
           month: parsedDate.getMonth(),
           year: parsedDate.getFullYear()
         };
+      }
+
+      _isPickerOverlayOpenedChanged (isOverlayOpen) {
+        if (this._focusDatePickerTimeout) clearTimeout(this._focusDatePickerTimeout);
+
+        if (!this._datePickerInput || !isOverlayOpen) return;
+
+        this._focusDatePickerTimeout = setTimeout(() => {
+          this._datePickerInput.blur();
+          this._datePickerInput.focus();
+        }, 15);
       }
     }
 
