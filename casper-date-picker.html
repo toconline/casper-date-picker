@@ -34,9 +34,10 @@
         return {
           minimumDate: String,
           maximumDate: String,
-          format: {
+          inputPlaceholder: String,
+          format : {
             type: String,
-            value: 'DDMMYYYY'
+            value: 'DD-MM-YYYY'
           },
           value: {
             type: String,
@@ -82,13 +83,15 @@
       }
 
       _parseDate (date) {
-        const parsedDate = moment(date, this.format).toDate();
+        const regexMatches = date.match(/(\d{2}).?(\d{2}).?(\d{4})/);
 
-        return {
-          day: parsedDate.getDate(),
-          month: parsedDate.getMonth(),
-          year: parsedDate.getFullYear()
-        };
+        if (regexMatches && regexMatches.length === 4) {
+          return {
+            day: parseInt(regexMatches[1]),
+            month: parseInt(regexMatches[2]) - 1,
+            year: parseInt(regexMatches[3]),
+          };
+        }
       }
 
       _isPickerOverlayOpenedChanged (isOverlayOpen) {
