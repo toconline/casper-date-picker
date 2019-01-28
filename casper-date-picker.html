@@ -16,9 +16,9 @@
       value="{{value}}"
       min="[[minimumDate]]"
       max="[[maximumDate]]"
-      opened="{{_isPickerOverlayOpened}}"
-      attr-for-value="value">
-      <paper-input tabindex="1" label="[[inputPlaceholder]]">
+      attr-for-value="value"
+      opened="{{_isPickerOverlayOpened}}">
+      <paper-input disabled="[[disabled]]" label="[[inputPlaceholder]]">
         <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
       </paper-input>
     </vaadin-date-picker-light>
@@ -32,6 +32,10 @@
 
       static get properties() {
         return {
+          disabled: {
+            type: Boolean,
+            observer: '_disabledChanged'
+          },
           minimumDate: String,
           maximumDate: String,
           inputPlaceholder: String,
@@ -58,6 +62,7 @@
         this._datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
 
         this._setupDatePicker();
+        this._datePicker.addEventListener('click', event => this._shouldOpenDatePicker(event));
       }
 
       _setupDatePicker () {
@@ -94,6 +99,10 @@
         }
       }
 
+      _shouldOpenDatePicker () {
+        this._isPickerOverlayOpened = !this.disabled;
+      }
+
       _isPickerOverlayOpenedChanged (isOverlayOpen) {
         if (this._focusDatePickerTimeout) clearTimeout(this._focusDatePickerTimeout);
 
@@ -103,6 +112,11 @@
           this._datePickerInput.blur();
           this._datePickerInput.focus();
         }, 15);
+      }
+
+      _disabledChanged () {
+        // Close the date picker if the input becomes disabled.
+        if (this.disabled) this._isPickerOverlayOpened = false;
       }
     }
 
