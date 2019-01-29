@@ -18,7 +18,11 @@
       max="[[maximumDate]]"
       attr-for-value="value"
       opened="{{_isPickerOverlayOpened}}">
-      <paper-input disabled="[[disabled]]" label="[[inputPlaceholder]]">
+      <paper-input
+        disabled="[[disabled]]"
+        invalid="[[_inputInvalid]]"
+        label="[[inputPlaceholder]]"
+        error-message="[[requiredMessage]]">
         <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
       </paper-input>
     </vaadin-date-picker-light>
@@ -32,13 +36,22 @@
 
       static get properties() {
         return {
+          required: Boolean,
+          minimumDate: String,
+          maximumDate: String,
+          inputPlaceholder: String,
+          autoValidate: {
+            type: Boolean,
+            value: false
+          },
+          requiredMessage: {
+            type: String,
+            value: 'Este campo deve ser preenchido.',
+          },
           disabled: {
             type: Boolean,
             observer: '_disabledChanged'
           },
-          minimumDate: String,
-          maximumDate: String,
-          inputPlaceholder: String,
           format : {
             type: String,
             value: 'DD-MM-YYYY'
@@ -46,6 +59,11 @@
           value: {
             type: String,
             notify: true,
+            observer: '_valueChanged'
+          },
+          _inputInvalid: {
+            type: Boolean,
+            value: false
           },
           _isPickerOverlayOpened: {
             type: Boolean,
@@ -58,11 +76,20 @@
       ready () {
         super.ready();
 
-        this._datePickerInput = this.shadowRoot.querySelector('paper-input');
         this._datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
+        this._datePickerInput = this.shadowRoot.querySelector('paper-input');
+        this._datePicker.addEventListener('click', event => this._shouldOpenDatePicker(event));
 
         this._setupDatePicker();
-        this._datePicker.addEventListener('click', event => this._shouldOpenDatePicker(event));
+      }
+
+      validate () {
+        const inputInvalid = this.required && !this.value;
+
+        // Without this the input would not display the invalid state.
+        Polymer.RenderStatus.afterNextRender(this._datePickerInput, () => this._inputInvalid = inputInvalid);
+
+        return inputInvalid;
       }
 
       _setupDatePicker () {
@@ -71,16 +98,11 @@
         this._datePicker.set('i18n.formatDate', date => this._formatDate(date));
 
         // Date picker translations.
-        this._datePicker.set('i18n.monthNames', [
-          'Janeiro', 'Fevereiro', 'Março', 'Abril',
-          'Maio', 'Junho', 'Julho', 'Agosto',
-          'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-        ]);
-
         this._datePicker.set('i18n.today', 'Hoje');
         this._datePicker.set('i18n.cancel', 'Cancelar');
         this._datePicker.set('i18n.weekdaysShort', ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']);
         this._datePicker.set('i18n.weekdays', ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']);
+        this._datePicker.set('i18n.monthNames', ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']);
       }
 
       _formatDate (date) {
@@ -112,6 +134,10 @@
           this._datePickerInput.blur();
           this._datePickerInput.focus();
         }, 15);
+      }
+
+      _valueChanged () {
+        if (this.autoValidate) this.validate();
       }
 
       _disabledChanged () {
