@@ -20,7 +20,7 @@
       opened="{{_isPickerOverlayOpened}}">
       <paper-input
         disabled="[[disabled]]"
-        invalid="[[_inputInvalid]]"
+        invalid="{{_inputInvalid}}"
         label="[[inputPlaceholder]]"
         error-message="[[requiredMessage]]">
         <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
@@ -63,7 +63,7 @@
           },
           _inputInvalid: {
             type: Boolean,
-            value: false
+            value: false,
           },
           _isPickerOverlayOpened: {
             type: Boolean,
@@ -84,12 +84,16 @@
       }
 
       validate () {
+        if (!this._datePickerInput) return;
+
         const inputInvalid = this.required && !this.value;
 
-        // Without this the input would not display the invalid state.
-        Polymer.RenderStatus.afterNextRender(this._datePickerInput, () => this._inputInvalid = inputInvalid);
+        // Necessary to make sure the UI changes correctly.
+        Polymer.RenderStatus.afterNextRender(this._datePickerInput, () => {
+          this._inputInvalid = inputInvalid;
+        });
 
-        return inputInvalid;
+        return !inputInvalid;
       }
 
       _setupDatePicker () {
