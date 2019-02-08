@@ -83,7 +83,7 @@
         this._setupDatePicker();
       }
 
-      validate () {
+      valid () {
         if (!this._datePickerInput) return;
 
         const inputInvalid = this.required && !this.value;
@@ -141,7 +141,7 @@
       }
 
       _valueChanged () {
-        if (this.autoValidate) this.validate();
+        if (this.autoValidate) this.valid();
       }
 
       _disabledChanged () {
