@@ -13,16 +13,18 @@
       }
     </style>
     <vaadin-date-picker-light
+      id="vaadinDatePicker"
       value="{{value}}"
       min="[[minimumDate]]"
       max="[[maximumDate]]"
       attr-for-value="value"
+      required="[[required]]"
       opened="{{_isPickerOverlayOpened}}">
       <paper-input
         disabled="[[disabled]]"
         invalid="{{_inputInvalid}}"
         label="[[inputPlaceholder]]"
-        error-message="[[requiredMessage]]">
+        error-message="[[_errorMessage]]">
         <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
       </paper-input>
     </vaadin-date-picker-light>
@@ -44,7 +46,15 @@
             type: Boolean,
             value: false
           },
-          requiredMessage: {
+          minimumErrorMessage: {
+            type: String,
+            value: 'A data não pode ser inferior ao limite mínimo'
+          },
+          maximumErrorMessage: {
+            type: String,
+            value: 'A data não pode ser superior ao limite máximo'
+          },
+          requiredErrorMessage: {
             type: String,
             value: 'Este campo deve ser preenchido.',
           },
@@ -86,7 +96,22 @@
       valid () {
         if (!this._datePickerInput) return;
 
-        const inputInvalid = this.required && !this.value;
+        const inputInvalid = !this.$.vaadinDatePicker.checkValidity();
+
+        if (inputInvalid) {
+          // Discover why the input is invalid (required / minimum / maximum).
+          if (!this._datePickerInput.value) this._errorMessage = this.requiredErrorMessage;
+
+          const currentDate = moment(this.value);
+          const minimumDate = moment(this.minimumDate);
+          const maximumDate = moment(this.maximumDate);
+
+          if (currentDate < maximumDate) this._errorMessage = this.minimumErrorMessage;
+          if (currentDate > maximumDate) this._errorMessage = this.maximumErrorMessage;
+
+          // Reset the value if the input is invalid.
+          this.value = '';
+        }
 
         // Necessary to make sure the UI changes correctly.
         Polymer.RenderStatus.afterNextRender(this._datePickerInput, () => {
