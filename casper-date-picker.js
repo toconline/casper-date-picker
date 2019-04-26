@@ -105,32 +105,36 @@ class CasperDatePicker extends PolymerElement {
   }
 
   _internalValueChanged (internalValue) {
-    if (!this.autoValidate || !this._datePickerInput) return;
+    if (!this._datePickerInput) return;
 
-    const inputInvalid = (this.required && !internalValue) || !this.$.vaadinDatePicker.checkValidity();
+    if (!this.autoValidate) {
+      const inputInvalid = (this.required && !internalValue) || !this.$.vaadinDatePicker.checkValidity();
 
-    if (inputInvalid) {
-      // Discover why the input is invalid (required / minimum / maximum).
-      if (!internalValue) this._errorMessage = this.requiredErrorMessage;
+      if (inputInvalid) {
+        // Discover why the input is invalid (required / minimum / maximum).
+        if (!internalValue) this._errorMessage = this.requiredErrorMessage;
 
-      const currentDate = moment(internalValue);
-      const minimumDate = moment(this.minimumDate);
-      const maximumDate = moment(this.maximumDate);
+        const currentDate = moment(internalValue);
+        const minimumDate = moment(this.minimumDate);
+        const maximumDate = moment(this.maximumDate);
 
-      if (currentDate < maximumDate) this._errorMessage = this.minimumErrorMessage;
-      if (currentDate > maximumDate) this._errorMessage = this.maximumErrorMessage;
+        if (currentDate < maximumDate) this._errorMessage = this.minimumErrorMessage;
+        if (currentDate > maximumDate) this._errorMessage = this.maximumErrorMessage;
 
-      this._setValue('');
+        this._setValue('');
+      } else {
+        this._setValue(internalValue);
+      }
+
+      // Necessary to make sure the UI changes correctly.
+      afterNextRender(this._datePickerInput, () => {
+        this._inputInvalid = inputInvalid;
+      });
+
+      return !inputInvalid;
     } else {
       this._setValue(internalValue);
     }
-
-    // Necessary to make sure the UI changes correctly.
-    afterNextRender(this._datePickerInput, () => {
-      this._inputInvalid = inputInvalid;
-    });
-
-    return !inputInvalid;
   }
 
   _setValue (value) {
