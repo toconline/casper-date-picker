@@ -81,6 +81,10 @@ class CasperDatePicker extends PolymerElement {
       _internalValue: {
         type: String,
         observer: '_internalValueChanged'
+      },
+      _isDatePickerPristine: {
+        type: Boolean,
+        value: true
       }
     };
   }
@@ -107,7 +111,12 @@ class CasperDatePicker extends PolymerElement {
   _internalValueChanged (internalValue) {
     if (!this._datePickerInput) return;
 
-    if (!this.autoValidate) {
+    if (this.autoValidate) {
+      if (this._isDatePickerPristine) {
+        this._isDatePickerPristine = false;
+        return;
+      }
+
       const inputInvalid = (this.required && !internalValue) || !this.$.vaadinDatePicker.checkValidity();
 
       if (inputInvalid) {
