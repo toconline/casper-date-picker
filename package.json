@@ -1,7 +1,7 @@
 {
   "description": "A re-usable date picker that extends the Vaadin Date Picker element.",
   "name": "@casper2020/casper-date-picker",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "resolutions": {
     "inherits": "2.0.3",
     "samsam": "1.1.3",

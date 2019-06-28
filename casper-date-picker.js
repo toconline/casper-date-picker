@@ -11,6 +11,10 @@ class CasperDatePicker extends PolymerElement {
         vaadin-date-picker-light {
           width: 100%;
         }
+
+        iron-icon {
+          color: var(--primary-color);
+        }
       </style>
       <vaadin-date-picker-light
         id="vaadinDatePicker"
@@ -127,7 +131,7 @@ class CasperDatePicker extends PolymerElement {
         const minimumDate = moment(this.minimumDate);
         const maximumDate = moment(this.maximumDate);
 
-        if (currentDate < maximumDate) this._errorMessage = this.minimumErrorMessage;
+        if (currentDate < minimumDate) this._errorMessage = this.minimumErrorMessage;
         if (currentDate > maximumDate) this._errorMessage = this.maximumErrorMessage;
 
         this._setValue('');
