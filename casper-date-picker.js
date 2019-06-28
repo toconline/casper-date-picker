@@ -11,10 +11,6 @@ class CasperDatePicker extends PolymerElement {
         vaadin-date-picker-light {
           width: 100%;
         }
-
-        iron-icon {
-          color: var(--primary-color);
-        }
       </style>
       <vaadin-date-picker-light
         id="vaadinDatePicker"
@@ -62,6 +58,7 @@ class CasperDatePicker extends PolymerElement {
       },
       disabled: {
         type: Boolean,
+        value: false,
         observer: '_disabledChanged'
       },
       format : {
@@ -214,7 +211,12 @@ class CasperDatePicker extends PolymerElement {
 
   _disabledChanged () {
     // Close the date picker if the input becomes disabled.
-    if (this.disabled) this._isPickerOverlayOpened = false;
+    if (this.disabled) {
+      this._isPickerOverlayOpened = false;
+      this.shadowRoot.querySelector('iron-icon').style.color = '';
+    } else {
+      this.shadowRoot.querySelector('iron-icon').style.color = 'var(--primary-color)';
+    }
   }
 }
 
