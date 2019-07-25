@@ -101,11 +101,7 @@ class CasperDatePicker extends PolymerElement {
   }
 
   _valueChanged (value) {
-    if (this._valueLock) {
-      this._valueLock = false;
-      return;
-    }
-
+    this._skipValueObserver = value;
     this._internalValue = value;
   }
 
@@ -149,8 +145,10 @@ class CasperDatePicker extends PolymerElement {
 
   _setValue (value) {
     // Lock the observer from being triggered.
-    this._valueLock = true;
-    this.value = value;
+    if (this._skipValueObserver !== value) {
+      this._valueLock = true;
+      this.value = value;
+    }
   }
 
   open () {
