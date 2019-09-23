@@ -12,7 +12,7 @@
   "dependencies": {
     "@polymer/paper-input": "^3.0.0",
     "@polymer/polymer": "^3.0.0",
-    "@vaadin/vaadin-date-picker": "^3.3.3",
+    "@vaadin/vaadin-date-picker": "^4.0.3",
     "moment": "^2.24.0"
   },
   "devDependencies": {
