@@ -21,6 +21,7 @@ class CasperDatePicker extends PolymerElement {
         opened="{{_isPickerOverlayOpened}}">
         <paper-input
           disabled="[[disabled]]"
+          value="{{_internalValue}}"
           invalid="{{_inputInvalid}}"
           label="[[inputPlaceholder]]"
           error-message="[[_errorMessage]]">
