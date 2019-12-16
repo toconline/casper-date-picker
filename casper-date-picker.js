@@ -21,9 +21,9 @@ class CasperDatePicker extends PolymerElement {
         opened="{{__isPickerOverlayOpened}}">
         <paper-input
           disabled="[[disabled]]"
-          invalid="{{_inputInvalid}}"
+          invalid="{{__inputInvalid}}"
           label="[[inputPlaceholder]]"
-          error-message="[[_errorMessage]]">
+          error-message="[[__errorMessage]]">
           <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
         </paper-input>
       </vaadin-date-picker-light>
@@ -70,7 +70,7 @@ class CasperDatePicker extends PolymerElement {
         notify: true,
         observer: '__valueChanged'
       },
-      _inputInvalid: {
+      __inputInvalid: {
         type: Boolean,
         value: false,
       },
@@ -97,7 +97,7 @@ class CasperDatePicker extends PolymerElement {
     this.__datePicker.addEventListener('click', event => this.__shouldOpenDatePicker(event));
 
     this.__datePickerInput = this.shadowRoot.querySelector('paper-input');
-    this.__datePickerInput.addEventListener('input', () => this.__internalValueChanged(this.__datePickerInput.value));
+    this.__datePickerInput.addEventListener('blur', () => this.__internalValueChanged(this.__datePickerInput.value));
 
     this.__setupDatePicker();
   }
@@ -120,14 +120,14 @@ class CasperDatePicker extends PolymerElement {
 
       if (inputInvalid) {
         // Discover why the input is invalid (required / minimum / maximum).
-        if (!internalValue) this._errorMessage = this.requiredErrorMessage;
+        if (!internalValue) this.__errorMessage = this.requiredErrorMessage;
 
         const currentDate = moment(internalValue);
         const minimumDate = moment(this.minimumDate);
         const maximumDate = moment(this.maximumDate);
 
-        if (currentDate < minimumDate) this._errorMessage = this.minimumErrorMessage;
-        if (currentDate > maximumDate) this._errorMessage = this.maximumErrorMessage;
+        if (currentDate < minimumDate) this.__errorMessage = this.minimumErrorMessage;
+        if (currentDate > maximumDate) this.__errorMessage = this.maximumErrorMessage;
 
         this.__setValue('');
       } else {
@@ -136,7 +136,7 @@ class CasperDatePicker extends PolymerElement {
 
       // Necessary to make sure the UI changes correctly.
       afterNextRender(this.__datePickerInput, () => {
-        this._inputInvalid = inputInvalid;
+        this.__inputInvalid = inputInvalid;
       });
 
       return !inputInvalid;
