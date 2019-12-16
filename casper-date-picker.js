@@ -5,7 +5,7 @@ import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
 
 class CasperDatePicker extends PolymerElement {
-  static get template() {
+  static get template () {
     return html`
       <style>
         vaadin-date-picker-light {
@@ -17,11 +17,10 @@ class CasperDatePicker extends PolymerElement {
         min="[[minimumDate]]"
         max="[[maximumDate]]"
         attr-for-value="value"
-        value="{{_internalValue}}"
-        opened="{{_isPickerOverlayOpened}}">
+        value="{{__internalValue}}"
+        opened="{{__isPickerOverlayOpened}}">
         <paper-input
           disabled="[[disabled]]"
-          value="{{_internalValue}}"
           invalid="{{_inputInvalid}}"
           label="[[inputPlaceholder]]"
           error-message="[[_errorMessage]]">
@@ -31,11 +30,11 @@ class CasperDatePicker extends PolymerElement {
     `;
   }
 
-  static get is() {
+  static get is () {
     return 'casper-date-picker';
   }
 
-  static get properties() {
+  static get properties () {
     return {
       required: Boolean,
       minimumDate: String,
@@ -62,29 +61,29 @@ class CasperDatePicker extends PolymerElement {
         value: false,
         observer: '_disabledChanged'
       },
-      format : {
+      format: {
         type: String,
         value: 'DD-MM-YYYY'
       },
       value: {
         type: String,
         notify: true,
-        observer: '_valueChanged'
+        observer: '__valueChanged'
       },
       _inputInvalid: {
         type: Boolean,
         value: false,
       },
-      _isPickerOverlayOpened: {
+      __isPickerOverlayOpened: {
         type: Boolean,
         value: false,
-        observer: '_isPickerOverlayOpenedChanged'
+        observer: '__isPickerOverlayOpenedChanged'
       },
-      _internalValue: {
+      __internalValue: {
         type: String,
-        observer: '_internalValueChanged'
+        observer: '__internalValueChanged'
       },
-      _isDatePickerPristine: {
+      __isDatePickerPristine: {
         type: Boolean,
         value: true
       }
@@ -94,24 +93,26 @@ class CasperDatePicker extends PolymerElement {
   ready () {
     super.ready();
 
-    this._datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
-    this._datePickerInput = this.shadowRoot.querySelector('paper-input');
-    this._datePicker.addEventListener('click', event => this._shouldOpenDatePicker(event));
+    this.__datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
+    this.__datePicker.addEventListener('click', event => this.__shouldOpenDatePicker(event));
 
-    this._setupDatePicker();
+    this.__datePickerInput = this.shadowRoot.querySelector('paper-input');
+    this.__datePickerInput.addEventListener('input', () => this.__internalValueChanged(this.__datePickerInput.value));
+
+    this.__setupDatePicker();
   }
 
-  _valueChanged (value) {
+  __valueChanged (value) {
     this._skipValueObserver = value;
-    this._internalValue = value;
+    this.__internalValue = value;
   }
 
-  _internalValueChanged (internalValue) {
-    if (!this._datePickerInput) return;
+  __internalValueChanged (internalValue) {
+    if (!this.__datePickerInput) return;
 
     if (this.autoValidate) {
-      if (this._isDatePickerPristine) {
-        this._isDatePickerPristine = false;
+      if (this.__isDatePickerPristine) {
+        this.__isDatePickerPristine = false;
         return;
       }
 
@@ -128,23 +129,23 @@ class CasperDatePicker extends PolymerElement {
         if (currentDate < minimumDate) this._errorMessage = this.minimumErrorMessage;
         if (currentDate > maximumDate) this._errorMessage = this.maximumErrorMessage;
 
-        this._setValue('');
+        this.__setValue('');
       } else {
-        this._setValue(internalValue);
+        this.__setValue(internalValue);
       }
 
       // Necessary to make sure the UI changes correctly.
-      afterNextRender(this._datePickerInput, () => {
+      afterNextRender(this.__datePickerInput, () => {
         this._inputInvalid = inputInvalid;
       });
 
       return !inputInvalid;
     } else {
-      this._setValue(internalValue);
+      this.__setValue(internalValue);
     }
   }
 
-  _setValue (value) {
+  __setValue (value) {
     // Lock the observer from being triggered.
     if (this._skipValueObserver !== value) {
       this._valueLock = true;
@@ -153,28 +154,28 @@ class CasperDatePicker extends PolymerElement {
   }
 
   open () {
-    this._isPickerOverlayOpened = true;
+    this.__isPickerOverlayOpened = true;
   }
 
   close () {
-    this._isPickerOverlayOpened = false;
+    this.__isPickerOverlayOpened = false;
   }
 
   toggle () {
-    this._isPickerOverlayOpened = !this._isPickerOverlayOpened;
+    this.__isPickerOverlayOpened = !this.__isPickerOverlayOpened;
   }
 
-  _setupDatePicker () {
+  __setupDatePicker () {
     // Function to format a date into a String and the other way around.
-    this._datePicker.set('i18n.parseDate', date => this._parseDate(date));
-    this._datePicker.set('i18n.formatDate', date => this._formatDate(date));
+    this.__datePicker.set('i18n.parseDate', date => this._parseDate(date));
+    this.__datePicker.set('i18n.formatDate', date => this._formatDate(date));
 
     // Date picker translations.
-    this._datePicker.set('i18n.today', 'Hoje');
-    this._datePicker.set('i18n.cancel', 'Cancelar');
-    this._datePicker.set('i18n.weekdaysShort', ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']);
-    this._datePicker.set('i18n.weekdays', ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']);
-    this._datePicker.set('i18n.monthNames', ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']);
+    this.__datePicker.set('i18n.today', 'Hoje');
+    this.__datePicker.set('i18n.cancel', 'Cancelar');
+    this.__datePicker.set('i18n.weekdaysShort', ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']);
+    this.__datePicker.set('i18n.weekdays', ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']);
+    this.__datePicker.set('i18n.monthNames', ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']);
   }
 
   _formatDate (date) {
@@ -193,25 +194,25 @@ class CasperDatePicker extends PolymerElement {
     }
   }
 
-  _shouldOpenDatePicker () {
-    this._isPickerOverlayOpened = !this.disabled;
+  __shouldOpenDatePicker () {
+    this.__isPickerOverlayOpened = !this.disabled;
   }
 
-  _isPickerOverlayOpenedChanged (isOverlayOpen) {
+  __isPickerOverlayOpenedChanged (isOverlayOpen) {
     if (this._focusDatePickerTimeout) clearTimeout(this._focusDatePickerTimeout);
 
-    if (!this._datePickerInput || !isOverlayOpen) return;
+    if (!this.__datePickerInput || !isOverlayOpen) return;
 
     this._focusDatePickerTimeout = setTimeout(() => {
-      this._datePickerInput.blur();
-      this._datePickerInput.focus();
+      this.__datePickerInput.blur();
+      this.__datePickerInput.focus();
     }, 15);
   }
 
   _disabledChanged () {
     // Close the date picker if the input becomes disabled.
     if (this.disabled) {
-      this._isPickerOverlayOpened = false;
+      this.__isPickerOverlayOpened = false;
       this.shadowRoot.querySelector('iron-icon').style.color = '';
     } else {
       this.shadowRoot.querySelector('iron-icon').style.color = 'var(--primary-color)';
