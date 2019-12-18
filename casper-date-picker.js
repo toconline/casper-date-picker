@@ -18,7 +18,7 @@ class CasperDatePicker extends PolymerElement {
         max="[[maximumDate]]"
         attr-for-value="value"
         value="{{__internalValue}}"
-        opened="{{__isPickerOverlayOpened}}">
+        opened="{{opened}}">
         <paper-input
           disabled="[[disabled]]"
           invalid="{{__inputInvalid}}"
@@ -74,10 +74,11 @@ class CasperDatePicker extends PolymerElement {
         type: Boolean,
         value: false,
       },
-      __isPickerOverlayOpened: {
+      opened: {
         type: Boolean,
         value: false,
-        observer: '__isPickerOverlayOpenedChanged'
+        notify: true,
+        observer: '__openedChanged'
       },
       __internalValue: {
         type: String,
@@ -154,15 +155,15 @@ class CasperDatePicker extends PolymerElement {
   }
 
   open () {
-    this.__isPickerOverlayOpened = true;
+    this.opened = true;
   }
 
   close () {
-    this.__isPickerOverlayOpened = false;
+    this.opened = false;
   }
 
   toggle () {
-    this.__isPickerOverlayOpened = !this.__isPickerOverlayOpened;
+    this.opened = !this.opened;
   }
 
   __setupDatePicker () {
@@ -195,10 +196,10 @@ class CasperDatePicker extends PolymerElement {
   }
 
   __shouldOpenDatePicker () {
-    this.__isPickerOverlayOpened = !this.disabled;
+    this.opened = !this.disabled;
   }
 
-  __isPickerOverlayOpenedChanged (isOverlayOpen) {
+  __openedChanged (isOverlayOpen) {
     if (this._focusDatePickerTimeout) clearTimeout(this._focusDatePickerTimeout);
 
     if (!this.__datePickerInput || !isOverlayOpen) return;
@@ -212,7 +213,7 @@ class CasperDatePicker extends PolymerElement {
   _disabledChanged () {
     // Close the date picker if the input becomes disabled.
     if (this.disabled) {
-      this.__isPickerOverlayOpened = false;
+      this.opened = false;
       this.shadowRoot.querySelector('iron-icon').style.color = '';
     } else {
       this.shadowRoot.querySelector('iron-icon').style.color = 'var(--primary-color)';
