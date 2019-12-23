@@ -3,6 +3,7 @@ import '@polymer/paper-input/paper-input.js';
 import '@vaadin/vaadin-date-picker/theme/material/vaadin-date-picker-light.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
+import { CasperOverlay } from '@casper2020/casper-overlay-behavior/casper-overlay.js';
 
 class CasperDatePicker extends PolymerElement {
   static get template () {
@@ -200,11 +201,15 @@ class CasperDatePicker extends PolymerElement {
   }
 
   __openedChanged (isOverlayOpen) {
-    if (this._focusDatePickerTimeout) clearTimeout(this._focusDatePickerTimeout);
+    isOverlayOpen
+      ? CasperOverlay.pushActiveOverlay(this.$.vaadinDatePicker.$.overlay)
+      : CasperOverlay.removeActiveOverlay(this.$.vaadinDatePicker.$.overlay);
+
+    if (this.__focusDatePickerTimeout) clearTimeout(this.__focusDatePickerTimeout);
 
     if (!this.__datePickerInput || !isOverlayOpen) return;
 
-    this._focusDatePickerTimeout = setTimeout(() => {
+    this.__focusDatePickerTimeout = setTimeout(() => {
       this.__datePickerInput.blur();
       this.__datePickerInput.focus();
     }, 15);
