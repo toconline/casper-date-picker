@@ -1,5 +1,6 @@
 import moment from 'moment/src/moment.js';
 import '@polymer/paper-input/paper-input.js';
+import '@casper2020/casper-icons/casper-icon.js';
 import '@vaadin/vaadin-date-picker/theme/material/vaadin-date-picker-light.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
@@ -25,7 +26,7 @@ class CasperDatePicker extends PolymerElement {
           invalid="{{__inputInvalid}}"
           label="[[inputPlaceholder]]"
           error-message="[[__errorMessage]]">
-          <iron-icon icon="casper-icons:date-range" slot="suffix"></iron-icon>
+          <casper-icon icon="fa-light:calendar-alt" slot="suffix"></casper-icon>
         </paper-input>
       </vaadin-date-picker-light>
     `;
@@ -219,9 +220,9 @@ class CasperDatePicker extends PolymerElement {
     // Close the date picker if the input becomes disabled.
     if (this.disabled) {
       this.opened = false;
-      this.shadowRoot.querySelector('iron-icon').style.color = '';
+      this.shadowRoot.querySelector('casper-icon').style.color = '';
     } else {
-      this.shadowRoot.querySelector('iron-icon').style.color = 'var(--primary-color)';
+      this.shadowRoot.querySelector('casper-icon').style.color = 'var(--primary-color)';
     }
   }
 }
