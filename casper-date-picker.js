@@ -68,6 +68,15 @@ class CasperDatePicker extends PolymerElement {
         type: String,
       },
       /**
+       * This property contains the current date in the specified format.
+       *
+       * @type {String}
+       */
+      formattedValue: {
+        type: String,
+        notify: true
+      },
+      /**
        * Wether the component should auto-validate itself as soon as its value changes or not.
        *
        * @type {Boolean}
@@ -217,6 +226,8 @@ class CasperDatePicker extends PolymerElement {
   }
 
   __setValue (value) {
+    this.formattedValue = value ? moment(value).format(this.format) : '';
+
     // Lock the observer from being triggered.
     if (this.__skipValueObserver !== value) {
       this.value = value;
