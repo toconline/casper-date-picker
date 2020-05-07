@@ -264,13 +264,13 @@ class CasperDatePicker extends PolymerElement {
    * @param {String} date The date that was input by the user.
    */
   __parseDate (date) {
-    const regexMatches = date.match(/(?<day>\d{2}).?(?<month>\d{2}).?(?<year>\d{4})/);
+    const regexMatches = date.match(/(\d{2}).?(\d{2}).?(\d{4})/);
 
     if (regexMatches && regexMatches.length === 4) {
       return {
-        day: parseInt(regexMatches.groups.day),
-        month: parseInt(regexMatches.groups.month) - 1,
-        year: parseInt(regexMatches.groups.year),
+        day: parseInt(regexMatches[1]),
+        month: parseInt(regexMatches[2]) - 1,
+        year: parseInt(regexMatches[3]),
       };
     }
   }
