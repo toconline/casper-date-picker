@@ -7,26 +7,52 @@ import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
 import { CasperOverlay } from '@cloudware-casper/casper-overlay-behavior/casper-overlay.js';
 
 class CasperDatePicker extends PolymerElement {
+
   static get template () {
     return html`
       <style>
         vaadin-date-picker-light {
           width: 100%;
         }
+
+        casper-icon {
+          cursor: pointer;
+          transition: color 250ms linear;
+        }
+
+        #clear-icon {
+          color: #525252;
+        }
+
+        #clear-icon:hover {
+          color: black;
+        }
+
+        #calendar-icon {
+          color: var(--primary-color);
+        }
+
+        #calendar-icon:hover {
+          color: var(--dark-primary-color);
+        }
+
+        :host([disabled]) casper-icon {
+          color: var(--disabled-background-color) !important;
+        }
       </style>
       <vaadin-date-picker-light
-        id="vaadinDatePicker"
+        opened="{{opened}}"
         min="[[minimumDate]]"
         max="[[maximumDate]]"
         attr-for-value="value"
-        value="{{__internalValue}}"
-        opened="{{opened}}">
+        value="{{__internalValue}}">
         <paper-input
           disabled="[[disabled]]"
           invalid="{{__inputInvalid}}"
           label="[[inputPlaceholder]]"
           error-message="[[__errorMessage]]">
-          <casper-icon icon="fa-light:calendar-alt" slot="suffix"></casper-icon>
+          <casper-icon icon="fa-light:times" slot="suffix" id="clear-icon" on-click="__resetDatePickerValue"></casper-icon>
+          <casper-icon icon="fa-light:calendar-alt" slot="suffix" id="calendar-icon"></casper-icon>
         </paper-input>
       </vaadin-date-picker-light>
     `;
@@ -35,37 +61,23 @@ class CasperDatePicker extends PolymerElement {
   static get properties () {
     return {
       /**
-       * This flag states if the casper-date-picker is required to have a value.
+       * Flag that states if the date picker is disabled or not.
        *
        * @type {Boolean}
        */
-      required: {
+      disabled: {
         type: Boolean,
-        value: true,
+        reflectToAttribute: true,
+        observer: '__disabledChanged'
       },
       /**
-       * The minimum date accepted by the calendar.
+       * Format in which the selected date will be displayed.
        *
        * @type {String}
        */
-      minimumDate: {
+      format: {
         type: String,
-      },
-      /**
-       * The maximum date accepted by the calendar.
-       *
-       * @type {String}
-       */
-      maximumDate: {
-        type: String,
-      },
-      /**
-       * The paper input's placeholder.
-       *
-       * @type {String}
-       */
-      inputPlaceholder: {
-        type: String,
+        value: 'DD-MM-YYYY'
       },
       /**
        * This property contains the current date in the specified format.
@@ -77,31 +89,65 @@ class CasperDatePicker extends PolymerElement {
         notify: true
       },
       /**
-       * Wether the component should auto-validate itself as soon as its value changes or not.
-       *
-       * @type {Boolean}
-       */
-      autoValidate: {
-        type: Boolean,
-        value: true
-      },
-      /**
-       * The error message that appears if the selected date is before the minimum allowed one.
+       * The paper input's placeholder.
        *
        * @type {String}
        */
-      minimumErrorMessage: {
+      inputPlaceholder: {
         type: String,
-        value: 'A data não pode ser inferior ao limite mínimo'
+      },
+      /**
+       * The maximum date accepted by the calendar.
+       *
+       * @type {String}
+       */
+      maximumDate: {
+        type: String,
       },
       /**
        * The error message that appears if the selected date is after the maximum allowed one.
        *
        * @type {String}
        */
-      maximumErrorMessage: {
+      maximumDateErrorMessage: {
         type: String,
         value: 'A data não pode ser superior ao limite máximo'
+      },
+      /**
+       * The minimum date accepted by the calendar.
+       *
+       * @type {String}
+       */
+      minimumDate: {
+        type: String,
+      },
+      /**
+       * The error message that appears if the selected date is before the minimum allowed one.
+       *
+       * @type {String}
+       */
+      minimumDateErrorMessage: {
+        type: String,
+        value: 'A data não pode ser inferior ao limite mínimo'
+      },
+      /**
+       * Flag that states if the date picker's overlay is open or not.
+       *
+       * @type {Boolean}
+       */
+      opened: {
+        type: Boolean,
+        notify: true,
+        observer: '__openedChanged'
+      },
+      /**
+       * This flag states if this component is required to have a value.
+       *
+       * @type {Boolean}
+       */
+      required: {
+        type: Boolean,
+        value: true,
       },
       /**
        * The error message that appears if the input is required and does not contain any value.
@@ -117,40 +163,10 @@ class CasperDatePicker extends PolymerElement {
        *
        * @type {Boolean}
        */
-      disabled: {
-        type: Boolean,
-        value: false,
-        observer: '__disabledChanged'
-      },
-      /**
-       * Format in which the selected date will be displayed.
-       *
-       * @type {String}
-       */
-      format: {
-        type: String,
-        value: 'DD-MM-YYYY'
-      },
-      /**
-       * Flag that states if the date picker is disabled or not.
-       *
-       * @type {Boolean}
-       */
       value: {
         type: String,
         notify: true,
         observer: '__valueChanged'
-      },
-      /**
-       * Flag that states if the date picker's overlay is open or not.
-       *
-       * @type {Boolean}
-       */
-      opened: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        observer: '__openedChanged'
       },
       /**
        * Flag that states if the paper input should display the error message and the invalid styles.
@@ -177,6 +193,7 @@ class CasperDatePicker extends PolymerElement {
     super.ready();
 
     this.__datePickerInput = this.shadowRoot.querySelector('paper-input');
+    this.__datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
     this.__setupDatePicker();
   }
 
@@ -186,24 +203,32 @@ class CasperDatePicker extends PolymerElement {
 
   /**
    * Observer that gets fired when the external value changes.
+   *
+   * @param {String} value The current component's value.
    */
-  __valueChanged () {
-    this.__skipValueObserver = this.value;
-    this.__internalValue = this.value;
+  __valueChanged (value) {
+    // This means the value was changed internally when the user selected a new date.
+    if (this.__valueLock) return;
+
+    this.formattedValue = value ? moment(value).format(this.format) : '';
+
+    this.__internallyChangeProperty('__internalValue', value);
   }
 
   /**
    * This method checks if the current vaadin date picker value is valid and either changes the external component's value
    * or displays the errors in the UI.
    *
-   * @param {String} internalValue The current vaadin-date-picker value.
+   * @param {String} internalValue The current date picker's value.
+   * @param {String} previousInternalValue The previous date picker's value.
    */
-  __internalValueChanged (internalValue) {
-    if (!this.autoValidate) this.__setValue(internalValue);
+  __internalValueChanged (internalValue, previousInternalValue) {
+    // This means the component is still initializing.
+    if (!internalValue && !previousInternalValue) return;
 
-    const inputInvalid = (this.required && !internalValue) || !this.$.vaadinDatePicker.checkValidity();
+    this.__inputInvalid = (this.required && !internalValue) || !this.__datePicker.checkValidity();
 
-    if (inputInvalid) {
+    if (this.__inputInvalid) {
       // Discover why the input is invalid (required / minimum / maximum).
       if (!internalValue) {
         this.__errorMessage = this.requiredErrorMessage;
@@ -212,31 +237,34 @@ class CasperDatePicker extends PolymerElement {
         const minimumDate = moment(this.minimumDate);
         const maximumDate = moment(this.maximumDate);
 
-        if (currentDate < minimumDate) this.__errorMessage = this.minimumErrorMessage;
-        if (currentDate > maximumDate) this.__errorMessage = this.maximumErrorMessage;
+        if (currentDate < minimumDate) this.__errorMessage = this.minimumDateErrorMessage;
+        if (currentDate > maximumDate) this.__errorMessage = this.maximumDateErrorMessage;
       }
 
-      this.__setValue('');
-    } else {
-      this.__setValue(internalValue);
+      return this.__setValue();
     }
 
-    // Necessary to make sure the UI changes correctly.
-    this.__inputInvalid = inputInvalid;
+    this.__setValue(internalValue);
   }
 
-  __setValue (value) {
+  /**
+   * This method changes the public value and formattedValue property.
+   *
+   * @param {String} value The current component's value.
+   */
+  __setValue (value = '') {
+    // This means that this method was invoked from the __internalValueChanged method which was triggered by an external value change.
+    if (this.__internalValueLock) return;
+
     this.formattedValue = value ? moment(value).format(this.format) : '';
 
-    // Lock the observer from being triggered.
-    if (this.__skipValueObserver !== value) {
-      this.value = value;
-    }
+    this.__internallyChangeProperty('value', value);
   }
 
+  /**
+   * This method sets the callbacks and translations needed for the vaadin-date-picker-light component.
+   */
   __setupDatePicker () {
-    this.__datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
-
     // Function to format a date into a String and the other way around.
     this.__datePicker.set('i18n.parseDate', date => this.__parseDate(date));
     this.__datePicker.set('i18n.formatDate', date => this.__formatDate(date));
@@ -244,15 +272,15 @@ class CasperDatePicker extends PolymerElement {
     // Date picker translations.
     this.__datePicker.set('i18n.today', 'Hoje');
     this.__datePicker.set('i18n.cancel', 'Cancelar');
-    this.__datePicker.set('i18n.weekdaysShort', ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']);
-    this.__datePicker.set('i18n.weekdays', ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']);
-    this.__datePicker.set('i18n.monthNames', ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']);
+    this.__datePicker.set('i18n.weekdays', moment.weekdays());
+    this.__datePicker.set('i18n.weekdaysShort', moment.weekdaysShort());
+    this.__datePicker.set('i18n.monthNames', moment.months().map(month => month.charAt(0).toUpperCase() + month.slice(1)));
   }
 
   /**
-   * This method formats the current vaadin-date-picker value into the defined format which by default is "DD-MM-YYYY".
+   * This method formats the current date picker's value into the defined format which by default is "DD-MM-YYYY".
    *
-   * @param {Date} date The current vaadin-date-picker value.
+   * @param {Date} date The current date picker's value.
    */
   __formatDate (date) {
     return moment(new Date(date.year, date.month, date.day)).format(this.format);
@@ -282,8 +310,8 @@ class CasperDatePicker extends PolymerElement {
    */
   __openedChanged (isOverlayOpen) {
     isOverlayOpen
-      ? CasperOverlay.pushActiveOverlay(this.$.vaadinDatePicker.$.overlay)
-      : CasperOverlay.removeActiveOverlay(this.$.vaadinDatePicker.$.overlay);
+      ? CasperOverlay.pushActiveOverlay(this.__datePicker.$.overlay)
+      : CasperOverlay.removeActiveOverlay(this.__datePicker.$.overlay);
 
     if (!isOverlayOpen) return;
 
@@ -297,13 +325,30 @@ class CasperDatePicker extends PolymerElement {
    * Observer that gets fired when the disabled property changes.
    */
   __disabledChanged () {
-    // Close the date picker if the input becomes disabled.
-    if (this.disabled) {
-      this.close();
-      this.shadowRoot.querySelector('casper-icon').style.color = '';
-    } else {
-      this.shadowRoot.querySelector('casper-icon').style.color = 'var(--primary-color)';
-    }
+    if (this.disabled) this.close();
+  }
+
+  /**
+   * Method that is invoked when the user clicks on the clear icon.
+   *
+   * @param {Object} event The event's object.
+   */
+  __resetDatePickerValue (event) {
+    event.stopPropagation();
+
+    this.value = '';
+  }
+
+  /**
+   * Changes a property and "locks" it in order to prevent infinite loops of observers.
+   *
+   * @param {String} propertyName The name of the property which will be changed.
+   * @param {String} propertyValue The new value of the property.
+   */
+  __internallyChangeProperty (propertyName, propertyValue) {
+    this[`${propertyName}Lock`] = true;
+    this[propertyName] = propertyValue;
+    this[`${propertyName}Lock`] = false;
   }
 }
 
