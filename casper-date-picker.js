@@ -16,12 +16,15 @@ class CasperDatePicker extends PolymerElement {
         }
 
         casper-icon {
+          width: 15px;
+          height: 15px;
           cursor: pointer;
           transition: color 250ms linear;
         }
 
         #clear-icon {
           color: #525252;
+          margin-right: 5px;
         }
 
         #clear-icon:hover {
@@ -51,7 +54,11 @@ class CasperDatePicker extends PolymerElement {
           invalid="{{__inputInvalid}}"
           label="[[inputPlaceholder]]"
           error-message="[[__errorMessage]]">
-          <casper-icon icon="fa-light:times" slot="suffix" id="clear-icon" on-click="__resetDatePickerValue"></casper-icon>
+          <!--Only display the clear icon if the date picker has a value-->
+          <template is="dom-if" if="[[__pickerHasValue]]">
+            <casper-icon icon="fa-light:times" slot="suffix" id="clear-icon" on-click="__resetDatePickerValue"></casper-icon>
+          </template>
+
           <casper-icon icon="fa-light:calendar-alt" slot="suffix" id="calendar-icon"></casper-icon>
         </paper-input>
       </vaadin-date-picker-light>
@@ -78,15 +85,6 @@ class CasperDatePicker extends PolymerElement {
       format: {
         type: String,
         value: 'DD-MM-YYYY'
-      },
-      /**
-       * This property contains the current date in the specified format.
-       *
-       * @type {String}
-       */
-      formattedValue: {
-        type: String,
-        notify: true
       },
       /**
        * The paper input's placeholder.
@@ -197,6 +195,10 @@ class CasperDatePicker extends PolymerElement {
     this.__setupDatePicker();
   }
 
+  get formattedValue () {
+    return this.value ? moment(this.value).format(this.format) : '';
+  }
+
   open () { this.opened = true; }
   close () { this.opened = false; }
   toggle () { this.opened = !this.opened; }
@@ -210,8 +212,6 @@ class CasperDatePicker extends PolymerElement {
     // This means the value was changed internally when the user selected a new date.
     if (this.__valueLock) return;
 
-    this.formattedValue = value ? moment(value).format(this.format) : '';
-
     this.__internallyChangeProperty('__internalValue', value);
   }
 
@@ -223,6 +223,8 @@ class CasperDatePicker extends PolymerElement {
    * @param {String} previousInternalValue The previous date picker's value.
    */
   __internalValueChanged (internalValue, previousInternalValue) {
+    this.__pickerHasValue = !!internalValue;
+
     // This means the component is still initializing.
     if (!internalValue && !previousInternalValue) return;
 
@@ -255,8 +257,6 @@ class CasperDatePicker extends PolymerElement {
   __setValue (value = '') {
     // This means that this method was invoked from the __internalValueChanged method which was triggered by an external value change.
     if (this.__internalValueLock) return;
-
-    this.formattedValue = value ? moment(value).format(this.format) : '';
 
     this.__internallyChangeProperty('value', value);
   }
