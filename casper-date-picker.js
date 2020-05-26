@@ -44,6 +44,7 @@ class CasperDatePicker extends PolymerElement {
         }
       </style>
       <vaadin-date-picker-light
+        id="picker"
         opened="{{opened}}"
         min="[[minimumDate]]"
         max="[[maximumDate]]"
@@ -191,7 +192,6 @@ class CasperDatePicker extends PolymerElement {
     super.ready();
 
     this.__datePickerInput = this.shadowRoot.querySelector('paper-input');
-    this.__datePicker = this.shadowRoot.querySelector('vaadin-date-picker-light');
     this.__setupDatePicker();
   }
 
@@ -228,7 +228,7 @@ class CasperDatePicker extends PolymerElement {
     // This means the component is still initializing.
     if (!internalValue && !previousInternalValue) return;
 
-    this.__inputInvalid = (this.required && !internalValue) || !this.__datePicker.checkValidity();
+    this.__inputInvalid = (this.required && !internalValue) || !this.$.picker.checkValidity();
 
     if (this.__inputInvalid) {
       // Discover why the input is invalid (required / minimum / maximum).
@@ -266,15 +266,15 @@ class CasperDatePicker extends PolymerElement {
    */
   __setupDatePicker () {
     // Function to format a date into a String and the other way around.
-    this.__datePicker.set('i18n.parseDate', date => this.__parseDate(date));
-    this.__datePicker.set('i18n.formatDate', date => this.__formatDate(date));
+    this.$.picker.set('i18n.parseDate', date => this.__parseDate(date));
+    this.$.picker.set('i18n.formatDate', date => this.__formatDate(date));
 
     // Date picker translations.
-    this.__datePicker.set('i18n.today', 'Hoje');
-    this.__datePicker.set('i18n.cancel', 'Cancelar');
-    this.__datePicker.set('i18n.weekdays', moment.weekdays());
-    this.__datePicker.set('i18n.weekdaysShort', moment.weekdaysShort());
-    this.__datePicker.set('i18n.monthNames', moment.months().map(month => month.charAt(0).toUpperCase() + month.slice(1)));
+    this.$.picker.set('i18n.today', 'Hoje');
+    this.$.picker.set('i18n.cancel', 'Cancelar');
+    this.$.picker.set('i18n.weekdays', moment.weekdays());
+    this.$.picker.set('i18n.weekdaysShort', moment.weekdaysShort());
+    this.$.picker.set('i18n.monthNames', moment.months().map(month => month.charAt(0).toUpperCase() + month.slice(1)));
   }
 
   /**
@@ -310,8 +310,8 @@ class CasperDatePicker extends PolymerElement {
    */
   __openedChanged (isOverlayOpen) {
     isOverlayOpen
-      ? CasperOverlay.pushActiveOverlay(this.__datePicker.$.overlay)
-      : CasperOverlay.removeActiveOverlay(this.__datePicker.$.overlay);
+      ? CasperOverlay.pushActiveOverlay(this.$.picker.$.overlay)
+      : CasperOverlay.removeActiveOverlay(this.$.picker.$.overlay);
 
     if (!isOverlayOpen) return;
 
