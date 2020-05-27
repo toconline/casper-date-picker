@@ -212,7 +212,7 @@ class CasperDatePicker extends PolymerElement {
     // This means the value was changed internally when the user selected a new date.
     if (this.valueLock) return;
 
-    this.__internalValue = value;
+    this.__internallyChangeProperty('__internalValue', value);
   }
 
   /**
@@ -255,7 +255,9 @@ class CasperDatePicker extends PolymerElement {
    * @param {String} value The current component's value.
    */
   __setValue (value = '') {
-    this.__internallyChangeProperty('value', value);
+    if (!this.__internalValueLock) {
+      this.__internallyChangeProperty('value', value);
+    }
   }
 
   /**
