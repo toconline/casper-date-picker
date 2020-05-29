@@ -1,7 +1,7 @@
 {
   "description": "A re-usable date picker that extends the Vaadin Date Picker element.",
   "name": "@cloudware-casper/casper-date-picker",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
