@@ -15,6 +15,10 @@ class CasperDatePicker extends PolymerElement {
           width: 100%;
         }
 
+        .icon-container {
+          display: flex;
+        }
+
         casper-icon {
           width: 15px;
           height: 15px;
@@ -55,12 +59,15 @@ class CasperDatePicker extends PolymerElement {
           invalid="{{__inputInvalid}}"
           label="[[inputPlaceholder]]"
           error-message="[[__errorMessage]]">
-          <!--Only display the clear icon if the date picker has a value-->
-          <template is="dom-if" if="[[__pickerHasValue]]">
-            <casper-icon icon="fa-light:times" slot="suffix" id="clear-icon" on-click="__resetDatePickerValue"></casper-icon>
-          </template>
 
-          <casper-icon icon="fa-light:calendar-alt" slot="suffix" id="calendar-icon"></casper-icon>
+          <div slot="suffix" class="icon-container">
+          <!--Only display the clear icon if the date picker has a value-->
+            <template is="dom-if" if="[[__pickerHasValue]]">
+              <casper-icon icon="fa-light:times" slot="suffix" id="clear-icon" on-click="__resetDatePickerValue"></casper-icon>
+            </template>
+
+            <casper-icon icon="fa-light:calendar-alt" slot="suffix" id="calendar-icon"></casper-icon>
+          </div>
         </paper-input>
       </vaadin-date-picker-light>
     `;
