@@ -13,7 +13,7 @@
   },
   "main": "casper-date-picker.js",
   "dependencies": {
-    "@cloudware-casper/casper-icons": "^1.x",
+    "@cloudware-casper/casper-icons": "^2.x",
     "@cloudware-casper/casper-overlay-behavior": "^1.x",
     "@polymer/paper-input": "^3.x",
     "@polymer/polymer": "^3.x",
