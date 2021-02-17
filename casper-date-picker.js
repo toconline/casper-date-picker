@@ -1,3 +1,24 @@
+/*
+  - Copyright (c) 2018-2021 Cloudware S.A. All rights reserved.
+  -
+  - This file is part of casper-date-picker.
+  -
+  - casper-date-picker is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU Affero General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - casper-date-picker  is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU Affero General Public License
+  - along with casper-date-picker.  If not, see <http://www.gnu.org/licenses/>.
+  -
+ */
+
+
 import moment from 'moment/src/moment.js';
 import '@polymer/paper-input/paper-input.js';
 import '@cloudware-casper/casper-icons/casper-icon.js';
@@ -56,7 +77,7 @@ class CasperDatePicker extends PolymerElement {
         value="{{__internalValue}}">
         <paper-input
           disabled="[[disabled]]"
-          invalid="{{__inputInvalid}}"
+          invalid="{{invalid}}"
           label="[[inputPlaceholder]]"
           error-message="[[__errorMessage]]">
 
@@ -179,7 +200,7 @@ class CasperDatePicker extends PolymerElement {
        *
        * @type {Boolean}
        */
-      __inputInvalid: {
+      invalid: {
         type: Boolean,
         value: false,
       },
@@ -235,9 +256,9 @@ class CasperDatePicker extends PolymerElement {
     // This means the component is still initializing.
     if (!internalValue && !previousInternalValue) return;
 
-    this.__inputInvalid = (this.required && !internalValue) || !this.$.picker.checkValidity();
+    this.invalid = (this.required && !internalValue) || !this.$.picker.checkValidity();
 
-    if (this.__inputInvalid) {
+    if (this.invalid) {
       // Discover why the input is invalid (required / minimum / maximum).
       if (!internalValue) {
         this.__errorMessage = this.requiredErrorMessage;
