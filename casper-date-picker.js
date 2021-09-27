@@ -81,6 +81,7 @@ class CasperDatePicker extends PolymerElement {
         value="{{__internalValue}}">
         <paper-input
           tooltip="[[tooltip]]"
+          tooltip-position="[[tooltipPosition]]"
           readonly="[[readonly]]"
           disabled="[[disabled]]"
           invalid="{{invalid}}"
@@ -218,6 +219,26 @@ class CasperDatePicker extends PolymerElement {
       __internalValue: {
         type: String,
         observer: '__internalValueChanged'
+      },
+      /**
+      * Tooltip
+      *
+      * @type {String}
+      */
+        tooltip: {
+        type: String,
+      },
+      /**
+      * Readonly Property
+      *
+      * @type {String}
+      */
+       readonly: {
+        type: Boolean,
+      },
+      tooltipPosition: {
+        type: String,
+        value: 'bottom'
       }
     };
   }
