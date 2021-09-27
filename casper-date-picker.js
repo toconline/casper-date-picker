@@ -68,14 +68,20 @@ class CasperDatePicker extends PolymerElement {
           color: var(--disabled-background-color) !important;
         }
       </style>
+
       <vaadin-date-picker-light
         id="picker"
         opened="{{opened}}"
         min="[[minimumDate]]"
         max="[[maximumDate]]"
         attr-for-value="value"
+        readonly="[[readonly]]"
+
+        disabled="[[disabled]]"
         value="{{__internalValue}}">
         <paper-input
+          tooltip="[[tooltip]]"
+          readonly="[[readonly]]"
           disabled="[[disabled]]"
           invalid="{{invalid}}"
           label="[[inputPlaceholder]]"
