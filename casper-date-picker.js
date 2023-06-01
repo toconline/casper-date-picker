@@ -363,9 +363,15 @@ class CasperDatePicker extends PolymerElement {
    * @param {Boolean} isOverlayOpen Flag that states if the overlay is currently open.
    */
   __openedChanged (isOverlayOpen) {
-    isOverlayOpen
-      ? CasperOverlay.pushActiveOverlay(this.$.picker.$.overlay)
-      : CasperOverlay.removeActiveOverlay(this.$.picker.$.overlay);
+    if (isOverlayOpen) {
+      CasperOverlay.pushActiveOverlay(this.$.picker.$.overlay);
+
+      // Necessary for CasperEditDialog, to fix problem related to the stacking context of the top-layer
+      this.$.picker.$.overlay.correspondingPicker = this.$.picker;
+      this.dispatchEvent(new CustomEvent('casper-overlay-opened', { bubbles: true, composed: true, detail: { element: this.$.picker.$.overlay } }));
+    } else {
+      CasperOverlay.removeActiveOverlay(this.$.picker.$.overlay);
+    }
 
     if (!isOverlayOpen) return;
 
