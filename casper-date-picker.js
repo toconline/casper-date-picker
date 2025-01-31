@@ -21,11 +21,11 @@
 
 import moment from 'moment/src/moment.js';
 import '@polymer/paper-input/paper-input.js';
-import '@cloudware-casper/casper-icons/casper-icon.js';
+import '@toconline/casper-icons/casper-icon.js';
 import '@vaadin/vaadin-date-picker/theme/material/vaadin-date-picker-light.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
-import { CasperOverlay } from '@cloudware-casper/casper-overlay-behavior/casper-overlay.js';
+import { CasperOverlay } from '@toconline/casper-overlay-behavior/casper-overlay.js';
 
 class CasperDatePicker extends PolymerElement {
 

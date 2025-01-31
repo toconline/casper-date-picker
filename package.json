@@ -1,14 +1,14 @@
 {
   "description": "A re-usable date picker that extends the Vaadin Date Picker element.",
-  "name": "@cloudware-casper/casper-date-picker",
+  "name": "@toconline/casper-date-picker",
   "version": "2.0.5",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
   "main": "casper-date-picker.js",
   "dependencies": {
-    "@cloudware-casper/casper-icons": "^3.x",
-    "@cloudware-casper/casper-overlay-behavior": "^1.x",
+    "@toconline/casper-icons": "^3.x",
+    "@toconline/casper-overlay-behavior": "^1.x",
     "@polymer/paper-input": "^3.x",
     "@polymer/polymer": "^3.x",
     "@vaadin/vaadin-date-picker": "^4.x",
